@@ -1,2 +1,29 @@
 # Movie-Recommendation-DB
-This application is an LLM-powered Movie Recommendation Database that allows users to search for movies and receive movie recommendations through natural-language requests.
+Our proposed application is an LLM-powered Movie Recommendation Database that allows 
+users to search for movies and receive movie recommendations through natural-language 
+requests. Instead of requiring users to manually search using predefined forms or filters, users 
+will be able to ask the LLM agent questions about movies using everyday language. The LLM 
+agent will interpret the request, select an appropriate predefined tool, and use that tool to 
+retrieve information from the PostgreSQL database. 
+
+The primary users of the application are people looking for movie information or 
+recommendations. The application will allow users to search for movies, retrieve movie details, 
+view movie ratings, and receive recommendations based on criteria such as genre, director, 
+release date, or rating. 
+
+The major data objects in the database are User, Movie, Genre, Person, Rating, and Role. User 
+data includes information such as a username and email. Movie data includes information such 
+as title, release date, and director. Genre data identifies the categories associated with movies. 
+Person and Role data represent people connected to movies and the roles they have. Rating data 
+connects users with movies and stores the rating value a user gives to a movie. 
+
+Users will interact with these data objects through the LLM agent. When a user submits a 
+natural-language request, the agent will determine the intent of the request and select the 
+appropriate database tool. The selected tool will query PostgreSQL and return the relevant 
+records. The LLM agent will then present those database results to the user in an understandable 
+natural-language response. 
+
+The agent will need to perform database operations such as SELECT queries, filtering, joins, 
+sorting, and aggregation. For example, it may join Movie and Genre information to find movies 
+belonging to a requested genre, filter movies according to release date or director, sort movies by 
+ratings, or use stored ratings when generating movie recommendations.
