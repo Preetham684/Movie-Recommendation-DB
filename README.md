@@ -27,3 +27,11 @@ The agent will need to perform database operations such as SELECT queries, filte
 sorting, and aggregation. For example, it may join Movie and Genre information to find movies 
 belonging to a requested genre, filter movies according to release date or director, sort movies by 
 ratings, or use stored ratings when generating movie recommendations.
+
+#To import the DB successfully, follow the steps below: -
+1) Download the file "Query_Movies_Export.sql" into your project folder.
+2) Go to the folder where you downloaded PostgreSQL the first time.
+3) Once you're there, run this via the terminal -> Get-Service *postgres*
+4) Run this command after -> psql -U postgres -d movieDB -> enter your password
+5) Next, run -> psql -U postgres -d movieDB -f "<path location to Query_Movies_Export.sql file>"
+6) You have now downloaded the pre-existing database with the tables I filled in. You can view it by going to pgAdmin4.
