@@ -1,0 +1,307 @@
+-- Midterm: schema + data load (first 50 rows of IMDB-Movie-Data.csv)
+-- Run with:  psql -d yourdb -f midterm_schema_and_data.sql
+
+-- Midterm: ER-to-Relational (DDL) for genre, movie, movie_genre, person
+DROP TABLE IF EXISTS movie_genre;
+DROP TABLE IF EXISTS movie;
+DROP TABLE IF EXISTS genre;
+DROP TABLE IF EXISTS person;
+
+CREATE TABLE person (
+    person_id   SERIAL PRIMARY KEY,
+    name        VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE genre (
+    genre_id    SERIAL PRIMARY KEY,
+    name        VARCHAR(30) NOT NULL UNIQUE
+);
+
+CREATE TABLE movie (
+    movie_id        INTEGER PRIMARY KEY,                 -- IMDB "Rank"
+    title           VARCHAR(200) NOT NULL,
+    description     TEXT,
+    release_year    SMALLINT NOT NULL CHECK (release_year BETWEEN 1888 AND 2100),
+    runtime_min     SMALLINT CHECK (runtime_min > 0),
+    rating          NUMERIC(3,1) CHECK (rating BETWEEN 0 AND 10),  -- decimal, not integer
+    votes           INTEGER CHECK (votes >= 0),
+    revenue_millions NUMERIC(8,2) CHECK (revenue_millions >= 0),   -- nullable
+    metascore       SMALLINT CHECK (metascore BETWEEN 0 AND 100),  -- nullable
+    director_id     INTEGER NOT NULL REFERENCES person(person_id)
+                    ON UPDATE CASCADE ON DELETE RESTRICT
+);
+
+-- M:N between movie and genre
+CREATE TABLE movie_genre (
+    movie_id    INTEGER NOT NULL REFERENCES movie(movie_id) ON DELETE CASCADE,
+    genre_id    INTEGER NOT NULL REFERENCES genre(genre_id) ON DELETE CASCADE,
+    PRIMARY KEY (movie_id, genre_id)
+);
+
+BEGIN;
+
+-- person: directors (movie.director_id references person)
+INSERT INTO person (name) VALUES
+('James Gunn'),
+('Ridley Scott'),
+('M. Night Shyamalan'),
+('Christophe Lourdelet'),
+('David Ayer'),
+('Yimou Zhang'),
+('Damien Chazelle'),
+('Sean Foley'),
+('James Gray'),
+('Morten Tyldum'),
+('David Yates'),
+('Theodore Melfi'),
+('Gareth Edwards'),
+('Ron Clements'),
+('Nacho Vigalondo'),
+('Chris Renaud'),
+('Mel Gibson'),
+('Paul Greengrass'),
+('Garth Davis'),
+('Denis Villeneuve'),
+('Stephen Gaghan'),
+('Kenneth Lonergan'),
+('Ben Young'),
+('Walt Dohrn'),
+('Roland Emmerich'),
+('Dominique Abel'),
+('S.S. Rajamouli'),
+('Phillip Guzman'),
+('Jon Lucas'),
+('Justin Kurzel'),
+('John Hamburg'),
+('Tom Ford'),
+('Bryan Singer'),
+('Tim Miller'),
+('Paul W.S. Anderson'),
+('Anthony Russo'),
+('Christopher Nolan'),
+('Scott Derrickson'),
+('Antoine Fuqua'),
+('Patrick Read Johnson'),
+('Greg Tiernan'),
+('Barry Jenkins'),
+('Shawn Burkett'),
+('John Lee Hancock'),
+('Ricardo de Montreuil'),
+('Rob Marshall'),
+('John Madden'),
+('Scott Hicks'),
+('Justin Lin'),
+('Sean Penn');
+
+-- genre
+INSERT INTO genre (name) VALUES
+('Action'),
+('Adventure'),
+('Sci-Fi'),
+('Mystery'),
+('Horror'),
+('Thriller'),
+('Animation'),
+('Comedy'),
+('Family'),
+('Fantasy'),
+('Drama'),
+('Music'),
+('Biography'),
+('Romance'),
+('History'),
+('Crime'),
+('Western');
+
+-- movie (movie_id = IMDB Rank; director_id looked up by name)
+INSERT INTO movie (movie_id, title, description, release_year, runtime_min, rating, votes, revenue_millions, metascore, director_id) VALUES
+(1, 'Guardians of the Galaxy', 'A group of intergalactic criminals are forced to work together to stop a fanatical warrior from taking control of the universe.', 2014, 121, 8.1, 757074, 333.13, 76, (SELECT person_id FROM person WHERE name = 'James Gunn')),
+(2, 'Prometheus', 'Following clues to the origin of mankind, a team finds a structure on a distant moon, but they soon realize they are not alone.', 2012, 124, 7.0, 485820, 126.46, 65, (SELECT person_id FROM person WHERE name = 'Ridley Scott')),
+(3, 'Split', 'Three girls are kidnapped by a man with a diagnosed 23 distinct personalities. They must try to escape before the apparent emergence of a frightful new 24th.', 2016, 117, 7.3, 157606, 138.12, 62, (SELECT person_id FROM person WHERE name = 'M. Night Shyamalan')),
+(4, 'Sing', 'In a city of humanoid animals, a hustling theater impresario''s attempt to save his theater with a singing competition becomes grander than he anticipates even as its finalists'' find that their lives will never be the same.', 2016, 108, 7.2, 60545, 270.32, 59, (SELECT person_id FROM person WHERE name = 'Christophe Lourdelet')),
+(5, 'Suicide Squad', 'A secret government agency recruits some of the most dangerous incarcerated super-villains to form a defensive task force. Their first mission: save the world from the apocalypse.', 2016, 123, 6.2, 393727, 325.02, 40, (SELECT person_id FROM person WHERE name = 'David Ayer')),
+(6, 'The Great Wall', 'European mercenaries searching for black powder become embroiled in the defense of the Great Wall of China against a horde of monstrous creatures.', 2016, 103, 6.1, 56036, 45.13, 42, (SELECT person_id FROM person WHERE name = 'Yimou Zhang')),
+(7, 'La La Land', 'A jazz pianist falls for an aspiring actress in Los Angeles.', 2016, 128, 8.3, 258682, 151.06, 93, (SELECT person_id FROM person WHERE name = 'Damien Chazelle')),
+(8, 'Mindhorn', 'A has-been actor best known for playing the title character in the 1980s detective series "Mindhorn" must work with the police when a serial killer says that he will only speak with Detective Mindhorn, whom he believes to be a real person.', 2016, 89, 6.4, 2490, NULL, 71, (SELECT person_id FROM person WHERE name = 'Sean Foley')),
+(9, 'The Lost City of Z', 'A true-life drama, centering on British explorer Col. Percival Fawcett, who disappeared while searching for a mysterious city in the Amazon in the 1920s.', 2016, 141, 7.1, 7188, 8.01, 78, (SELECT person_id FROM person WHERE name = 'James Gray')),
+(10, 'Passengers', 'A spacecraft traveling to a distant colony planet and transporting thousands of people has a malfunction in its sleep chambers. As a result, two passengers are awakened 90 years early.', 2016, 116, 7.0, 192177, 100.01, 41, (SELECT person_id FROM person WHERE name = 'Morten Tyldum')),
+(11, 'Fantastic Beasts and Where to Find Them', 'The adventures of writer Newt Scamander in New York''s secret community of witches and wizards seventy years before Harry Potter reads his book in school.', 2016, 133, 7.5, 232072, 234.02, 66, (SELECT person_id FROM person WHERE name = 'David Yates')),
+(12, 'Hidden Figures', 'The story of a team of female African-American mathematicians who served a vital role in NASA during the early years of the U.S. space program.', 2016, 127, 7.8, 93103, 169.27, 74, (SELECT person_id FROM person WHERE name = 'Theodore Melfi')),
+(13, 'Rogue One', 'The Rebel Alliance makes a risky move to steal the plans for the Death Star, setting up the epic saga to follow.', 2016, 133, 7.9, 323118, 532.17, 65, (SELECT person_id FROM person WHERE name = 'Gareth Edwards')),
+(14, 'Moana', 'In Ancient Polynesia, when a terrible curse incurred by the Demigod Maui reaches an impetuous Chieftain''s daughter''s island, she answers the Ocean''s call to seek out the Demigod to set things right.', 2016, 107, 7.7, 118151, 248.75, 81, (SELECT person_id FROM person WHERE name = 'Ron Clements')),
+(15, 'Colossal', 'Gloria is an out-of-work party girl forced to leave her life in New York City, and move back home. When reports surface that a giant creature is destroying Seoul, she gradually comes to the realization that she is somehow connected to this phenomenon.', 2016, 109, 6.4, 8612, 2.87, 70, (SELECT person_id FROM person WHERE name = 'Nacho Vigalondo')),
+(16, 'The Secret Life of Pets', 'The quiet life of a terrier named Max is upended when his owner takes in Duke, a stray whom Max instantly dislikes.', 2016, 87, 6.6, 120259, 368.31, 61, (SELECT person_id FROM person WHERE name = 'Chris Renaud')),
+(17, 'Hacksaw Ridge', 'WWII American Army Medic Desmond T. Doss, who served during the Battle of Okinawa, refuses to kill people, and becomes the first man in American history to receive the Medal of Honor without firing a shot.', 2016, 139, 8.2, 211760, 67.12, 71, (SELECT person_id FROM person WHERE name = 'Mel Gibson')),
+(18, 'Jason Bourne', 'The CIA''s most dangerous former operative is drawn out of hiding to uncover more explosive truths about his past.', 2016, 123, 6.7, 150823, 162.16, 58, (SELECT person_id FROM person WHERE name = 'Paul Greengrass')),
+(19, 'Lion', 'A five-year-old Indian boy gets lost on the streets of Calcutta, thousands of kilometers from home. He survives many challenges before being adopted by a couple in Australia. 25 years later, he sets out to find his lost family.', 2016, 118, 8.1, 102061, 51.69, 69, (SELECT person_id FROM person WHERE name = 'Garth Davis')),
+(20, 'Arrival', 'When twelve mysterious spacecraft appear around the world, linguistics professor Louise Banks is tasked with interpreting the language of the apparent alien visitors.', 2016, 116, 8.0, 340798, 100.5, 81, (SELECT person_id FROM person WHERE name = 'Denis Villeneuve')),
+(21, 'Gold', 'Kenny Wells, a prospector desperate for a lucky break, teams up with a similarly eager geologist and sets off on a journey to find gold in the uncharted jungle of Indonesia.', 2016, 120, 6.7, 19053, 7.22, 49, (SELECT person_id FROM person WHERE name = 'Stephen Gaghan')),
+(22, 'Manchester by the Sea', 'A depressed uncle is asked to take care of his teenage nephew after the boy''s father dies.', 2016, 137, 7.9, 134213, 47.7, 96, (SELECT person_id FROM person WHERE name = 'Kenneth Lonergan')),
+(23, 'Hounds of Love', 'A cold-blooded predatory couple while cruising the streets in search of their next victim, will stumble upon a 17-year-old high school girl, who will be sedated, abducted and chained in the strangers'' guest room.', 2016, 108, 6.7, 1115, NULL, 72, (SELECT person_id FROM person WHERE name = 'Ben Young')),
+(24, 'Trolls', 'After the Bergens invade Troll Village, Poppy, the happiest Troll ever born, and the curmudgeonly Branch set off on a journey to rescue her friends.', 2016, 92, 6.5, 38552, 153.69, 56, (SELECT person_id FROM person WHERE name = 'Walt Dohrn')),
+(25, 'Independence Day: Resurgence', 'Two decades after the first Independence Day invasion, Earth is faced with a new extra-Solar threat. But will mankind''s new space defenses be enough?', 2016, 120, 5.3, 127553, 103.14, 32, (SELECT person_id FROM person WHERE name = 'Roland Emmerich')),
+(26, 'Paris pieds nus', 'Fiona visits Paris for the first time to assist her myopic Aunt Martha. Catastrophes ensue, mainly involving Dom, a homeless man who has yet to have an emotion or thought he was afraid of expressing.', 2016, 83, 6.8, 222, NULL, NULL, (SELECT person_id FROM person WHERE name = 'Dominique Abel')),
+(27, 'Bahubali: The Beginning', 'In ancient India, an adventurous and daring man becomes involved in a decades old feud between two warring people.', 2015, 159, 8.3, 76193, 6.5, NULL, (SELECT person_id FROM person WHERE name = 'S.S. Rajamouli')),
+(28, 'Dead Awake', 'A young woman must save herself and her friends from an ancient evil that stalks its victims through the real-life phenomenon of sleep paralysis.', 2016, 99, 4.7, 523, 0.01, NULL, (SELECT person_id FROM person WHERE name = 'Phillip Guzman')),
+(29, 'Bad Moms', 'When three overworked and under-appreciated moms are pushed beyond their limits, they ditch their conventional responsibilities for a jolt of long overdue freedom, fun, and comedic self-indulgence.', 2016, 100, 6.2, 66540, 113.08, 60, (SELECT person_id FROM person WHERE name = 'Jon Lucas')),
+(30, 'Assassin''s Creed', 'When Callum Lynch explores the memories of his ancestor Aguilar and gains the skills of a Master Assassin, he discovers he is a descendant of the secret Assassins society.', 2016, 115, 5.9, 112813, 54.65, 36, (SELECT person_id FROM person WHERE name = 'Justin Kurzel')),
+(31, 'Why Him?', 'A holiday gathering threatens to go off the rails when Ned Fleming realizes that his daughter''s Silicon Valley millionaire boyfriend is about to pop the question.', 2016, 111, 6.3, 48123, 60.31, 39, (SELECT person_id FROM person WHERE name = 'John Hamburg')),
+(32, 'Nocturnal Animals', 'A wealthy art gallery owner is haunted by her ex-husband''s novel, a violent thriller she interprets as a symbolic revenge tale.', 2016, 116, 7.5, 126030, 10.64, 67, (SELECT person_id FROM person WHERE name = 'Tom Ford')),
+(33, 'X-Men: Apocalypse', 'After the re-emergence of the world''s first mutant, world-destroyer Apocalypse, the X-Men must unite to defeat his extinction level plan.', 2016, 144, 7.1, 275510, 155.33, 52, (SELECT person_id FROM person WHERE name = 'Bryan Singer')),
+(34, 'Deadpool', 'A fast-talking mercenary with a morbid sense of humor is subjected to a rogue experiment that leaves him with accelerated healing powers and a quest for revenge.', 2016, 108, 8.0, 627797, 363.02, 65, (SELECT person_id FROM person WHERE name = 'Tim Miller')),
+(35, 'Resident Evil: The Final Chapter', 'Alice returns to where the nightmare began: The Hive in Raccoon City, where the Umbrella Corporation is gathering its forces for a final strike against the only remaining survivors of the apocalypse.', 2016, 107, 5.6, 46165, 26.84, 49, (SELECT person_id FROM person WHERE name = 'Paul W.S. Anderson')),
+(36, 'Captain America: Civil War', 'Political interference in the Avengers'' activities causes a rift between former allies Captain America and Iron Man.', 2016, 147, 7.9, 411656, 408.08, 75, (SELECT person_id FROM person WHERE name = 'Anthony Russo')),
+(37, 'Interstellar', 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity''s survival.', 2014, 169, 8.6, 1047747, 187.99, 74, (SELECT person_id FROM person WHERE name = 'Christopher Nolan')),
+(38, 'Doctor Strange', 'While on a journey of physical and spiritual healing, a brilliant neurosurgeon is drawn into the world of the mystic arts.', 2016, 115, 7.6, 293732, 232.6, 72, (SELECT person_id FROM person WHERE name = 'Scott Derrickson')),
+(39, 'The Magnificent Seven', 'Seven gunmen in the old west gradually come together to help a poor village against savage thieves.', 2016, 132, 6.9, 122853, 93.38, 54, (SELECT person_id FROM person WHERE name = 'Antoine Fuqua')),
+(40, '5- 25- 77', 'Alienated, hopeful-filmmaker Pat Johnson''s epic story growing up in rural Illinois, falling in love, and becoming the first fan of the movie that changed everything.', 2007, 113, 7.1, 241, NULL, NULL, (SELECT person_id FROM person WHERE name = 'Patrick Read Johnson')),
+(41, 'Sausage Party', 'A sausage strives to discover the truth about his existence.', 2016, 89, 6.3, 120690, 97.66, 66, (SELECT person_id FROM person WHERE name = 'Greg Tiernan')),
+(42, 'Moonlight', 'A chronicle of the childhood, adolescence and burgeoning adulthood of a young, African-American, gay man growing up in a rough neighborhood of Miami.', 2016, 111, 7.5, 135095, 27.85, 99, (SELECT person_id FROM person WHERE name = 'Barry Jenkins')),
+(43, 'Don''t Fuck in the Woods', 'A group of friends are going on a camping trip to celebrate graduating college. But once they enter the woods, the proverbial shit starts to hit the fan.', 2016, 73, 2.7, 496, NULL, NULL, (SELECT person_id FROM person WHERE name = 'Shawn Burkett')),
+(44, 'The Founder', 'The story of Ray Kroc, a salesman who turned two brothers'' innovative fast food eatery, McDonald''s, into one of the biggest restaurant businesses in the world with a combination of ambition, persistence, and ruthlessness.', 2016, 115, 7.2, 37033, 12.79, 66, (SELECT person_id FROM person WHERE name = 'John Lee Hancock')),
+(45, 'Lowriders', 'A young street artist in East Los Angeles is caught between his father''s obsession with lowrider car culture, his ex-felon brother and his need for self-expression.', 2016, 99, 6.3, 279, 4.21, 57, (SELECT person_id FROM person WHERE name = 'Ricardo de Montreuil')),
+(46, 'Pirates of the Caribbean: On Stranger Tides', 'Jack Sparrow and Barbossa embark on a quest to find the elusive fountain of youth, only to discover that Blackbeard and his daughter are after it too.', 2011, 136, 6.7, 395025, 241.06, 45, (SELECT person_id FROM person WHERE name = 'Rob Marshall')),
+(47, 'Miss Sloane', 'In the high-stakes world of political power-brokers, Elizabeth Sloane is the most sought after and formidable lobbyist in D.C. But when taking on the most powerful opponent of her career, she finds winning may come at too high a price.', 2016, 132, 7.3, 17818, 3.44, 64, (SELECT person_id FROM person WHERE name = 'John Madden')),
+(48, 'Fallen', 'A young girl finds herself in a reform school after therapy since she was blamed for the death of a young boy. At the school she finds herself drawn to a fellow student, unaware that he is an angel, and has loved her for thousands of years.', 2016, 91, 5.6, 5103, NULL, NULL, (SELECT person_id FROM person WHERE name = 'Scott Hicks')),
+(49, 'Star Trek Beyond', 'The USS Enterprise crew explores the furthest reaches of uncharted space, where they encounter a new ruthless enemy who puts them and everything the Federation stands for to the test.', 2016, 122, 7.1, 164567, 158.8, 68, (SELECT person_id FROM person WHERE name = 'Justin Lin')),
+(50, 'The Last Face', 'A director (Charlize Theron) of an international aid agency in Africa meets a relief aid doctor (Javier Bardem) amidst a political/social revolution, and together face tough choices ... See full summary »', 2016, 130, 3.7, 987, NULL, 16, (SELECT person_id FROM person WHERE name = 'Sean Penn'));
+
+-- movie_genre (genre_id looked up by name)
+INSERT INTO movie_genre (movie_id, genre_id)
+SELECT v.movie_id, g.genre_id
+FROM (VALUES
+(1, 'Action'),
+(1, 'Adventure'),
+(1, 'Sci-Fi'),
+(2, 'Adventure'),
+(2, 'Mystery'),
+(2, 'Sci-Fi'),
+(3, 'Horror'),
+(3, 'Thriller'),
+(4, 'Animation'),
+(4, 'Comedy'),
+(4, 'Family'),
+(5, 'Action'),
+(5, 'Adventure'),
+(5, 'Fantasy'),
+(6, 'Action'),
+(6, 'Adventure'),
+(6, 'Fantasy'),
+(7, 'Comedy'),
+(7, 'Drama'),
+(7, 'Music'),
+(8, 'Comedy'),
+(9, 'Action'),
+(9, 'Adventure'),
+(9, 'Biography'),
+(10, 'Adventure'),
+(10, 'Drama'),
+(10, 'Romance'),
+(11, 'Adventure'),
+(11, 'Family'),
+(11, 'Fantasy'),
+(12, 'Biography'),
+(12, 'Drama'),
+(12, 'History'),
+(13, 'Action'),
+(13, 'Adventure'),
+(13, 'Sci-Fi'),
+(14, 'Animation'),
+(14, 'Adventure'),
+(14, 'Comedy'),
+(15, 'Action'),
+(15, 'Comedy'),
+(15, 'Drama'),
+(16, 'Animation'),
+(16, 'Adventure'),
+(16, 'Comedy'),
+(17, 'Biography'),
+(17, 'Drama'),
+(17, 'History'),
+(18, 'Action'),
+(18, 'Thriller'),
+(19, 'Biography'),
+(19, 'Drama'),
+(20, 'Drama'),
+(20, 'Mystery'),
+(20, 'Sci-Fi'),
+(21, 'Adventure'),
+(21, 'Drama'),
+(21, 'Thriller'),
+(22, 'Drama'),
+(23, 'Crime'),
+(23, 'Drama'),
+(23, 'Horror'),
+(24, 'Animation'),
+(24, 'Adventure'),
+(24, 'Comedy'),
+(25, 'Action'),
+(25, 'Adventure'),
+(25, 'Sci-Fi'),
+(26, 'Comedy'),
+(27, 'Action'),
+(27, 'Adventure'),
+(27, 'Drama'),
+(28, 'Horror'),
+(28, 'Thriller'),
+(29, 'Comedy'),
+(30, 'Action'),
+(30, 'Adventure'),
+(30, 'Drama'),
+(31, 'Comedy'),
+(32, 'Drama'),
+(32, 'Thriller'),
+(33, 'Action'),
+(33, 'Adventure'),
+(33, 'Sci-Fi'),
+(34, 'Action'),
+(34, 'Adventure'),
+(34, 'Comedy'),
+(35, 'Action'),
+(35, 'Horror'),
+(35, 'Sci-Fi'),
+(36, 'Action'),
+(36, 'Adventure'),
+(36, 'Sci-Fi'),
+(37, 'Adventure'),
+(37, 'Drama'),
+(37, 'Sci-Fi'),
+(38, 'Action'),
+(38, 'Adventure'),
+(38, 'Fantasy'),
+(39, 'Action'),
+(39, 'Adventure'),
+(39, 'Western'),
+(40, 'Comedy'),
+(40, 'Drama'),
+(41, 'Animation'),
+(41, 'Adventure'),
+(41, 'Comedy'),
+(42, 'Drama'),
+(43, 'Horror'),
+(44, 'Biography'),
+(44, 'Drama'),
+(44, 'History'),
+(45, 'Drama'),
+(46, 'Action'),
+(46, 'Adventure'),
+(46, 'Fantasy'),
+(47, 'Drama'),
+(47, 'Thriller'),
+(48, 'Adventure'),
+(48, 'Drama'),
+(48, 'Fantasy'),
+(49, 'Action'),
+(49, 'Adventure'),
+(49, 'Sci-Fi'),
+(50, 'Drama')
+) AS v(movie_id, genre_name)
+JOIN genre g ON g.name = v.genre_name;
+
+COMMIT;
+
+-- Demo
+-- SELECT * FROM person;
+-- SELECT * FROM genre;
+-- SELECT * FROM movie;
+-- SELECT * FROM movie_genre;
