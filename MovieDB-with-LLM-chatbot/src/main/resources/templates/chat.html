@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MovieBot · CSE 412</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>🎬 MovieBot</h1>
+      <p class="sub">Ask about movies in plain English. An LLM agent queries the database for you.</p>
+    </div>
+    <div class="meta">
+      <span class="pill">LLM: <b th:text="${llmLabel}">Ollama</b></span>
+      <span class="pill">DB: <b th:text="${dbLabel}">H2</b></span>
+      <label class="pill toggle"><input type="checkbox" id="showSteps" checked> show agent steps</label>
+      <button id="reset" class="ghost" title="Clear conversation">New chat</button>
+    </div>
+  </header>
+
+  <main id="chat">
+    <div class="msg bot">
+      <div class="bubble">Hi! I can search movies, show details and ratings, and recommend something to watch.
+        Try one of these:</div>
+    </div>
+    <div class="examples">
+      <button class="ex">Recommend a scary movie from after 2015</button>
+      <button class="ex">Who directed Inception and what else did they make?</button>
+      <button class="ex">How is Parasite rated? Who liked it most?</button>
+      <button class="ex">I loved Get Out, what should I watch next?</button>
+      <button class="ex">Animated movies rated above 8</button>
+      <button class="ex">Which movies have Leonardo DiCaprio?</button>
+    </div>
+  </main>
+
+  <form id="form" autocomplete="off">
+    <input id="input" placeholder="Ask MovieBot…" autofocus>
+    <button id="send" type="submit">Send</button>
+  </form>
+  <footer>CSE 412 · Group 24 · User → LLM agent → tools → SQL → database → LLM → answer</footer>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>
