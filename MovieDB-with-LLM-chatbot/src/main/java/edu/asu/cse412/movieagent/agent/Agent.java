@@ -121,6 +121,7 @@ public class Agent {
             Rules:
             - ALWAYS call a tool to get data. Answer ONLY from tool results; never invent movies, years, people or ratings.
             - search_movies: find/list movies by title, genre, director, actor, year.
+            - search_movies returns at most 15 rows; total_matches is the real number of matching movies. Use it for "how many" questions.
             - get_movie_details: info about one specific movie (director, genres, actors, release date).
             - get_movie_ratings: rating statistics for one specific movie.
             - recommend_movies: suggestions; use similar_to when the user names a movie they liked.

@@ -128,7 +128,7 @@ public class MovieTools {
                                                   Integer yearFrom, Integer yearTo) throws SQLException {
         String sql = """
             SELECT CAST(m.title AS VARCHAR) AS title, %s AS release_year, %s AS genres, %s AS director,
-                   %s AS avg_rating
+                   %s AS avg_rating, COUNT(*) OVER () AS total_matches
             FROM movie m
             WHERE (CAST(:title AS VARCHAR) IS NULL OR CAST(m.title AS VARCHAR) ILIKE '%%' || CAST(:title AS VARCHAR) || '%%')
             %s
