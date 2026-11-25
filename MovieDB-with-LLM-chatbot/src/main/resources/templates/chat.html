@@ -7,41 +7,57 @@
   <link rel="stylesheet" href="/app.css">
 </head>
 <body>
-<div class="app">
-  <header>
+<header class="topbar">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="3" y="8" width="26" height="19" rx="3"/>
+      <path d="M3 13h26M9 8l3 5M16 8l3 5M23 8l3 5"/>
+    </svg>
     <div>
-      <h1>🎬 MovieBot</h1>
-      <p class="sub">Ask about movies in plain English. An LLM agent queries the database for you.</p>
+      <h1>MovieBot</h1>
+      <p>Ask about movies in plain English</p>
     </div>
-    <div class="meta">
-      <span class="pill">LLM: <b th:text="${llmLabel}">Ollama</b></span>
-      <span class="pill">DB: <b th:text="${dbLabel}">H2</b></span>
-      <label class="pill toggle"><input type="checkbox" id="showSteps" checked> show agent steps</label>
-      <button id="reset" class="ghost" title="Clear conversation">New chat</button>
-    </div>
-  </header>
+  </div>
+  <div class="status">
+    <span class="badge powered">
+      <span class="dot"></span>Powered by
+      <b th:text="${#strings.replace(#strings.replace(llmLabel, ' (', ' · '), ')', '')}">Azure OpenAI · gpt-4.1-mini</b>
+    </span>
+    <span class="badge">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="4" rx="5.5" ry="2"/><path d="M2.5 4v8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2V4M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/></svg>
+      <b th:text="${dbLabel}">PostgreSQL</b>
+    </span>
+    <button id="reset" class="btn-ghost" type="button">New chat</button>
+  </div>
+</header>
 
-  <main id="chat">
-    <div class="msg bot">
-      <div class="bubble">Hi! I can search movies, show details and ratings, and recommend something to watch.
-        Try one of these:</div>
-    </div>
+<main id="chat" class="chat">
+  <section class="welcome" id="welcome">
+    <h2>Hi! What would you like to know?</h2>
+    <p>I look up every answer in our movie database, so nothing is made up. Try one of these:</p>
     <div class="examples">
-      <button class="ex">Recommend a scary movie from after 2015</button>
-      <button class="ex">Who directed Inception and what else did they make?</button>
-      <button class="ex">How is Parasite rated? Who liked it most?</button>
-      <button class="ex">I loved Get Out, what should I watch next?</button>
-      <button class="ex">Animated movies rated above 8</button>
-      <button class="ex">Which movies have Leonardo DiCaprio?</button>
+      <button class="ex" type="button">Tell me about Guardians of the Galaxy</button>
+      <button class="ex" type="button">How is Split rated?</button>
+      <button class="ex" type="button">Recommend a sci-fi movie</button>
+      <button class="ex" type="button">Which movies did Ridley Scott direct?</button>
+      <button class="ex" type="button">Which movies have Chris Pratt?</button>
+      <button class="ex" type="button">I liked Prometheus, what should I watch next?</button>
     </div>
-  </main>
+  </section>
+</main>
 
-  <form id="form" autocomplete="off">
-    <input id="input" placeholder="Ask MovieBot…" autofocus>
-    <button id="send" type="submit">Send</button>
+<footer class="composer-wrap">
+  <form id="form" class="composer" autocomplete="off">
+    <input id="input" placeholder="Ask MovieBot about a movie, actor, genre or rating…" aria-label="Message" autofocus>
+    <button id="send" type="submit" aria-label="Send">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h14M12 5l7 7-7 7"/></svg>
+    </button>
   </form>
-  <footer>CSE 412 · Group 24 · User → LLM agent → tools → SQL → database → LLM → answer</footer>
-</div>
+  <div class="hint">
+    <label class="switch"><input type="checkbox" id="showSteps" checked><span></span> Show agent steps</label>
+    <span class="credit">CSE 412 · Group 24 · LLM agent → tools → SQL → database</span>
+  </div>
+</footer>
 <script src="/app.js"></script>
 </body>
 </html>
