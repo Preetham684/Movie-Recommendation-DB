@@ -38,8 +38,19 @@ public class ChatController {
         log.info("MovieBot ready | DB: {} ({}) | LLM: {}", dbLabel, url, llm.label);
     }
 
-    /** The chat page. */
+    /** Landing page. */
     @GetMapping("/")
+    public String home(Model model) {
+        model.addAttribute("llmLabel", llm.label);
+        model.addAttribute("dbLabel", dbLabel);
+        List<String> genres;
+        try { genres = tools.genres(); } catch (Exception e) { genres = List.of(); }
+        model.addAttribute("genres", genres);
+        return "home";
+    }
+
+    /** The chat page. */
+    @GetMapping("/chat")
     public String chat(Model model) {
         model.addAttribute("llmLabel", llm.label);
         model.addAttribute("dbLabel", dbLabel);

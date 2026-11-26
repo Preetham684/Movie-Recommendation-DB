@@ -8,7 +8,7 @@
 </head>
 <body>
 <header class="topbar">
-  <div class="brand">
+  <a class="brand" href="/" aria-label="MovieBot home">
     <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
       <rect x="3" y="8" width="26" height="19" rx="3"/>
       <path d="M3 13h26M9 8l3 5M16 8l3 5M23 8l3 5"/>
@@ -17,7 +17,7 @@
       <h1>MovieBot</h1>
       <p>Ask about movies in plain English</p>
     </div>
-  </div>
+  </a>
   <div class="status">
     <span class="badge powered">
       <span class="dot"></span>Powered by
@@ -27,6 +27,7 @@
       <svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="4" rx="5.5" ry="2"/><path d="M2.5 4v8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2V4M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/></svg>
       <b th:text="${dbLabel}">PostgreSQL</b>
     </span>
+    <a class="btn-ghost" href="/">Home</a>
     <button id="reset" class="btn-ghost" type="button">New chat</button>
   </div>
 </header>

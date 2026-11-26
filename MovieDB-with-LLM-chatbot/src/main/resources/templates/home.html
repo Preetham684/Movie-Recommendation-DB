@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MovieBot · Find your next movie</title>
+  <meta name="description" content="Ask about movies in plain English. An LLM agent looks up every answer in a real movie database.">
+  <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/home.css">
+</head>
+<body class="home">
+<header class="topbar">
+  <a class="brand" href="/" aria-label="MovieBot home">
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="3" y="8" width="26" height="19" rx="3"/>
+      <path d="M3 13h26M9 8l3 5M16 8l3 5M23 8l3 5"/>
+    </svg>
+    <div><h1>MovieBot</h1><p>CSE 412 · Group 24</p></div>
+  </a>
+  <nav class="nav">
+    <a href="#how">How it works</a>
+    <a href="#tools">What it can do</a>
+    <a href="#stack">Tech</a>
+    <a class="btn-primary" href="/chat">Open chat</a>
+  </nav>
+</header>
+
+<main class="page">
+  <section class="hero">
+    <span class="eyebrow">LLM agent · PostgreSQL · Tool calling</span>
+    <h2>Find your next movie<br>by just <em>asking</em>.</h2>
+    <p class="lead">Describe what you’re in the mood for, or ask about a title, actor, director or rating.
+      MovieBot looks up every answer in a real movie database, so nothing is made up.</p>
+    <div class="cta">
+      <a class="btn-primary lg" href="/chat">Start chatting
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h14M12 5l7 7-7 7"/></svg></a>
+      <a class="btn-ghost lg" href="#how">See how it works</a>
+    </div>
+
+    <div class="try">
+      <span class="try-label">Try asking</span>
+      <a class="chip" href="/chat?q=Recommend%20a%20sci-fi%20movie">Recommend a sci-fi movie</a>
+      <a class="chip" href="/chat?q=Tell%20me%20about%20Guardians%20of%20the%20Galaxy">Tell me about Guardians of the Galaxy</a>
+      <a class="chip" href="/chat?q=Which%20movies%20did%20Ridley%20Scott%20direct%3F">Which movies did Ridley Scott direct?</a>
+      <a class="chip" href="/chat?q=I%20liked%20Prometheus%2C%20what%20should%20I%20watch%20next%3F">I liked Prometheus, what next?</a>
+    </div>
+  </section>
+
+  <section class="band" th:if="${!genres.isEmpty()}" aria-label="Genres in the database">
+    <span class="band-label">Browse by genre</span>
+    <a class="chip soft" th:each="g : ${genres}" th:text="${g}"
+       th:href="@{/chat(q=${'Recommend a ' + g + ' movie'})}">Action</a>
+  </section>
+
+  <section id="how" class="section">
+    <h3>How it works</h3>
+    <p class="sub">Every reply is built from live database results. You can inspect each step in the chat.</p>
+    <ol class="flow">
+      <li><span class="num">1</span><h4>You ask</h4><p>Type a question in everyday language, no filters or forms.</p></li>
+      <li><span class="num">2</span><h4>Agent picks a tool</h4><p>The LLM works out your intent and chooses one of a few safe, predefined tools.</p></li>
+      <li><span class="num">3</span><h4>Tool runs SQL</h4><p>The tool queries PostgreSQL with parameterized joins, filters and sorting.</p></li>
+      <li><span class="num">4</span><h4>You get an answer</h4><p>The LLM turns the rows into a clear reply, with the SQL shown if you want it.</p></li>
+    </ol>
+  </section>
+
+  <section id="tools" class="section">
+    <h3>What it can do</h3>
+    <p class="sub">Four tools cover search, details, ratings and recommendations.</p>
+    <div class="cards">
+      <article class="card"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+        <h4>Search movies</h4><p>Filter by title, genre, director, actor or release date.</p><code>search_movies</code></article>
+      <article class="card"><svg viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 8.5h8M8 12h8M8 15.5h5"/></svg>
+        <h4>Movie details</h4><p>Cast, director, genres and release date for any title.</p><code>get_movie_details</code></article>
+      <article class="card"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 17l-5.2 2.7 1-5.9L3.5 9.7l5.9-.8z"/></svg>
+        <h4>Ratings</h4><p>See how users rated a movie, with averages and counts.</p><code>get_movie_ratings</code></article>
+      <article class="card"><svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></svg>
+        <h4>Recommendations</h4><p>Get picks by genre or “more like” a movie you loved.</p><code>recommend_movies</code></article>
+    </div>
+  </section>
+
+  <section id="stack" class="section">
+    <h3>Under the hood</h3>
+    <div class="stack">
+      <div><b>LLM</b><span th:text="${#strings.replace(#strings.replace(llmLabel, ' (', ' · '), ')', '')}">Azure OpenAI</span></div>
+      <div><b>Database</b><span th:text="${dbLabel}">PostgreSQL</span></div>
+      <div><b>Backend</b><span>Java 17 · Spring Boot</span></div>
+      <div><b>Data model</b><span>User · Movie · Genre · Person · Role · Rating</span></div>
+    </div>
+  </section>
+
+  <section class="final">
+    <h3>Ready to find something to watch?</h3>
+    <a class="btn-primary lg" href="/chat">Open MovieBot
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h14M12 5l7 7-7 7"/></svg></a>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>MovieBot · CSE 412 · Group 24</span>
+  <span>LLM agent → tools → SQL → database</span>
+</footer>
+</body>
+</html>
